@@ -1,11 +1,5 @@
-var express = require("express");
+var bootstrap = require("./bootstrap");
 
-var app = express();
-
-
-app.get("/", function (req, res) {
-    res.send("hello world");
-});
-
+var app = bootstrap.getApp();
 
 app.listen(8080);
