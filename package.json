@@ -4,7 +4,8 @@
   "description": "tedfe-server web cookbook, story tech and video etc.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "app": "forever index.js",
+    "stop": "forever stopall"
   },
   "author": "gaochao",
   "license": "ISC",
