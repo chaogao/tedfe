@@ -2,6 +2,10 @@ var express = require("express"),
     swig = require("swig"),
     cookieParser = require('cookie-parser'),
     session = require('express-session'),
+    methodOverride = require('method-override'),
+    FileStreamRotator = require('file-stream-rotator'),
+    favicon = require('serve-favicon'),
+    morgan = require('morgan'),
     path = require("path"),
     fs = require("fs");
 
@@ -43,16 +47,36 @@ var App = {
 
     /**
      * app 所有请求通用处理
+     * 目前处理 methodoverride logger
      */
     generateApp: function (argument) {
-        var accessLog = fs.createWriteStream('./log/access.log', {flags: 'a'});
+        /**
+         * favicon 配置
+         */
+        app.use(favicon(__dirname + "/../public/favicon.ico"));
 
-        // access logo 记录
-        app.use(function (req, res, next) {
-            var meta = '[' + new Date() + '] ' + req.url + '\n';
-            accessLog.write(meta + '\n');
-            next();
+        /**
+         * method override 让浏览器支持 put、delete
+         */
+        app.use(methodOverride());
+
+        /**
+         * access log 记录
+         */
+        var logDirectory = path.join(__dirname, "..", "log");
+         
+        // ensure log directory exists 
+        fs.existsSync(logDirectory) || fs.mkdirSync(logDirectory)
+
+        // create a rotating write stream 
+        var accessLogStream = FileStreamRotator.getStream({
+            filename: logDirectory + '/access-%DATE%.log',
+            date_format: "YYYYMMDDHH",
+            frequency: 'daily',
+            verbose: false
         });
+
+        app.use(morgan('combined', {stream: accessLogStream}));
     },
 
     /**
@@ -85,7 +109,18 @@ var App = {
      * 错误日志记录
      */
     generateError: function (argument) {
-        var errorLog = fs.createWriteStream('./log/error.log', {flags: 'a'});
+        var logDirectory = path.join(__dirname, "..", "log");
+         
+        // ensure log directory exists 
+        fs.existsSync(logDirectory) || fs.mkdirSync(logDirectory)
+
+        // create a rotating write stream 
+        var errorLogStream = FileStreamRotator.getStream({
+            filename: logDirectory + '/error-%DATE%.log',
+            date_format: "YYYYMMDDHH",
+            frequency: 'daily',
+            verbose: false
+        });
 
         // log error
         app.use(function (err, req, res, next) {
@@ -93,9 +128,9 @@ var App = {
 
             // 如果是自定义错误也记录下来
             if (Error.is(err)) {
-                errorLog.write(meta + err.getMessage() + err.stack() + "\n");
+                errorLogStream.write(meta + err.getMessage() + err.stack() + "\n");
             } else {
-                errorLog.write(meta + err.stack + "\n");    
+                errorLogStream.write(meta + err.stack + "\n");    
             }
 
             next(err);

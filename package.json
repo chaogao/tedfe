@@ -17,8 +17,12 @@
     "ejs": "^2.4.1",
     "express": "^4.13.4",
     "express-session": "^1.13.0",
+    "file-stream-rotator": "0.0.6",
     "forever": "^0.15.1",
+    "method-override": "^2.3.5",
+    "morgan": "^1.6.1",
     "mysql": "^2.10.2",
+    "serve-favicon": "^2.3.0",
     "swig": "^1.4.2"
   }
 }
