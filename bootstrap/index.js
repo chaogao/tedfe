@@ -1,7 +1,11 @@
 var express = require("express"),
     swig = require("swig"),
+    cookieParser = require('cookie-parser'),
+    session = require('express-session'),
     path = require("path"),
     fs = require("fs");
+
+var RedisStore = require('connect-redis')(session);
 
 var Error = require("../util/error");
 
@@ -12,12 +16,29 @@ var App = {
         app = express();
 
         this.generateTemplate();
+        this.generateCookieSession();
         this.generateApp();
         this.generateRoute();
         this.generateError();
         this.generate404();
 
         return app;
+    },
+
+    /**
+     * 对 cookie 和 session 进行配置
+     */
+    generateCookieSession: function (argument) {
+        app.use(cookieParser());
+        app.use(session({
+            secret: "tedfe",
+            resave:false,
+            saveUninitialized:false,
+            store: new RedisStore({
+                host: "121.42.218.198",
+                port: 6379
+            })
+        }));
     },
 
     /**

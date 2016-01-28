@@ -10,8 +10,13 @@
   "author": "gaochao",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.14.2",
+    "connect-redis": "^3.0.2",
+    "cookie-parser": "^1.4.1",
+    "cookie-session": "^1.2.0",
     "ejs": "^2.4.1",
     "express": "^4.13.4",
+    "express-session": "^1.13.0",
     "forever": "^0.15.1",
     "mysql": "^2.10.2",
     "swig": "^1.4.2"
