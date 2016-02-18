@@ -1,6 +1,6 @@
 var express = require("express");
 
-var Error = require("../../util/error");
+var Error = require("../../../util/error");
 
 var route = express.Router();
 

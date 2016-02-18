@@ -15,7 +15,7 @@ SysError.prototype.__type = "sys_err";
  */
 SysError.prototype.getResponse = function () {
   var res = {
-    err: this.code,
+    errno: this.code,
     data: this.data
   }
 

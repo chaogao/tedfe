@@ -1,9 +1,11 @@
 var express = require('express'),
   swig = require('swig'),
   cookieParser = require('cookie-parser'),
+  bodyParser = require('body-parser'),
   session = require('express-session'),
   methodOverride = require('method-override'),
   FileStreamRotator = require('file-stream-rotator'),
+  multer = require('multer'),
   favicon = require('serve-favicon'),
   morgan = require('morgan'),
   path = require('path'),
@@ -63,9 +65,15 @@ var App = {
    */
   generateApp: function (argument) {
     /**
+     * bodyparser
+     */
+    app.use(bodyParser.json());
+    app.use(bodyParser.urlencoded({ extended: true }));
+
+    /**
      * favicon 配置
      */
-    app.use(favicon(__dirname + '/../public/favicon.ico'));
+    app.use(favicon(__dirname + '/../favicon.ico'));
 
     /**
      * method override 让浏览器支持 put、delete
@@ -111,8 +119,10 @@ var App = {
    * 生成路由信息
    */
   generateRoute: function (argument) {
-    app.use('/', require('../app/index'));
-    app.use('/point', require('../app/point'));
+    app.use('/', require('../app/controller/index'));
+    app.use('/point', require('../app/controller/point'));
+    app.use('/book', require('../app/controller/book'));
+    app.use('/user', require('../app/controller/user'));
   },
 
   /**
