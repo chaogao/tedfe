@@ -28,4 +28,17 @@ route.get("/api/", function (req, res, next) {
   });
 });
 
+route.get("/api/book/:id", function (req, res, next) {
+  var id = req.params.id;
+
+  Book.findById(id, function (err, raw) {
+    if (err) {
+      res.json(err.getResponse());
+    } else {
+      console.log(raw);
+      res.json(util.controller.getResponse(raw));
+    }
+  });
+});
+
 module.exports = route;

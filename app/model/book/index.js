@@ -23,12 +23,30 @@ var SELECT_FIELDS = [
   'create_time'
 ];
 
+var pool = util.db.get();
+
 /**
  * book model
  */
 var Book = function (data, option) {
-  this.pool = util.db.get();
   this.data = data;
+}
+
+/**
+ * 通过 id 获取 Book
+ */
+Book.findById = function (id, cb) {
+  pool.query('select ?? from `book` where id = ?', [SELECT_FIELDS, id], function (err, raw) {
+    err = util.model.transError(err);
+
+    if (raw && raw.length == 0) {
+      err = new util.error(util.code.BOOK_NOT_FOUND.code, {
+        msg: util.code.BOOK_NOT_FOUND.msg
+      });
+    }
+
+    cb(err, raw && raw[0]);
+  });  
 }
 
 /**
@@ -38,14 +56,17 @@ Book.prototype.save = function (cb, option) {
   var self = this;
 
   if (!util.validate.checkFields(this.data, REQUIRED_FIELDS)) {
+    var unDefinedFields = util.validate.getUnDefinedFields(this.data, REQUIRED_FIELDS);
+
     cb(new util.error(util.code.DB_FIELDS_CHECK.code, {
-        msg: util.code.DB_FIELDS_CHECK.msg
+        msg: util.code.DB_FIELDS_CHECK.msg,
+        requires: unDefinedFields
     }));
   } else {
     self.data.create_time = util.model.createTime();
     self.data.content_html = util.model.markHTML(self.data.content);
 
-    self.pool.query('insert into `book` set ?', self.data, function (err, raw) {
+    pool.query('insert into `book` set ?', self.data, function (err, raw) {
       err = util.model.transError(err);
       cb(err, raw);
     });
@@ -58,7 +79,7 @@ Book.prototype.save = function (cb, option) {
 Book.prototype.getAll = function (cb) {
   var self = this;
 
-  this.pool.query('select ?? from `book` where del=0', [SELECT_FIELDS], function (err, raw) {
+  pool.query('select ?? from `book` where del=0', [SELECT_FIELDS], function (err, raw) {
     // 返回数据进行处理
     self._transData(raw);
     err = util.model.transError(err);
